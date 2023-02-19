@@ -116,6 +116,7 @@ def main():
     logging.info(error_msg_info.STSRT_BOT_MSG)
     while True:
         try:
+            check_tokens()
             response = get_api_answer(current_timestamp)
             homeworks = check_response(response)
             if homeworks:
