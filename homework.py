@@ -35,12 +35,12 @@ def send_message(bot, message):
     """Отправка сообщения в телеграм."""
     try:
         bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
-        logging.info(error_msg_info.SEND_MSG_TG)
+        logger.info(error_msg_info.SEND_MSG_TG)
     except Exception:
-        logging.error(error_msg_info.ERROR_SEND_MSG)
+        logger.error(error_msg_info.ERROR_SEND_MSG)
         raise SendMessageError(error_msg_info.ERROR_SEND_MSG)
     else:
-        logging.debug(error_msg_info.SEND_MSG_OK)
+        logger.debug(error_msg_info.SEND_MSG_OK)
 
 
 def get_api_answer(current_timestamp):
@@ -84,13 +84,13 @@ def parse_status(homework):
 
 def main():
     """Основная функция программы."""
-    logging.info(error_msg_info.CHEK_TOKEN)
+    logger.info(error_msg_info.CHEK_TOKEN)
     if not check_tokens():
-        logging.critical(error_msg_info.ERROR_NOT_FOUND_TOKEN)
+        logger.critical(error_msg_info.ERROR_NOT_FOUND_TOKEN)
         raise TokenError(error_msg_info.ERROR_NOT_FOUND_TOKEN)
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
     send_message(bot, error_msg_info.STSRT_BOT_MSG)
-    logging.info(error_msg_info.STSRT_BOT_MSG)
+    logger.info(error_msg_info.STSRT_BOT_MSG)
     current_timestamp = FIRST_CUTOOF_ZERO
     previous_message = ''
     error_message = ''
@@ -109,7 +109,7 @@ def main():
             message = (
                 f'{error_msg_info.ERROR_PROGRAM_FAILURE}{error}'
             )
-            logging.error(message)
+            logger.error(message)
             if error_message != message:
                 send_message(bot, message)
                 error_message = message
