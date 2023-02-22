@@ -17,6 +17,8 @@ from settings import (
     PRACTICUM_TOKEN, RETRY_PERIOD,
     TELEGRAM_CHAT_ID, TELEGRAM_TOKEN)
 
+logger = logging.getLogger(__name__)
+
 
 def check_tokens():
     """Проверка наличия токенов и чат-id."""
@@ -131,7 +133,6 @@ if __name__ == '__main__':
         filename='main.log',
         filemode="w",
     )
-    logger = logging.getLogger(__name__)
     handler = logging.StreamHandler()
     logger.addHandler(handler)
     main()
