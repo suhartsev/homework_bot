@@ -7,7 +7,7 @@ STATUS_WOMEWORK_NOT_CHANGE = 'Статус домашних работ не из
 
 ERROR_NOT_200 = 'Код отличный от 200: '
 ERROR_SEND_MSG = 'Cбой при отправке сообщения в Telegram'
-ERROR_GET_ENDPOINT = 'Произошел сбой при запросе к эндпоинту'
+ERROR_GET_ENDPOINT = 'Произошел сбой при запросе к эндпоинту: '
 ERROR_PROGRAM_FAILURE = 'Сбой в работе программы: '
 ERROR_NOT_FOUND_TOKEN = 'Отсутствуют обязательные переменные.'
 ERROR_GET_NOT_KEY_STATUS = 'Ключ "status" отсутствует в списке'

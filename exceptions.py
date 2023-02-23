@@ -26,9 +26,3 @@ class GetEndpointError(Exception):
     """'Произошёл сбой при запросе к эндпоинту."""
 
     pass
-
-
-class SendMessageError(Exception):
-    """Произошёл сбой в отправке сообщения."""
-
-    pass

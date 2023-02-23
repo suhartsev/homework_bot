@@ -3,34 +3,40 @@ import time
 
 import requests
 import telegram
+
 from http import HTTPStatus
 
 import error_msg_info
 from exceptions import (
-    CheckApiKey, CheckHomeworkStatus,
+    CheckApiKey, GetEndpointError,
     ResponseError, TokenError,
-    GetEndpointError, SendMessageError
+    CheckHomeworkStatus,
 )
 from settings import (
     ENDPOINT, FIRST_CUTOOF_ZERO,
     HEADERS, HOMEWORK_VERDICTS,
     PRACTICUM_TOKEN, RETRY_PERIOD,
-    TELEGRAM_CHAT_ID, TELEGRAM_TOKEN)
+    TELEGRAM_CHAT_ID, TELEGRAM_TOKEN
+)
 
 logger = logging.getLogger(__name__)
 
 
 def check_tokens():
     """Проверка наличия токенов и чат-id."""
-    tokens_list = [
-        PRACTICUM_TOKEN,
-        TELEGRAM_TOKEN,
-        TELEGRAM_CHAT_ID,
-    ]
-    for tokens in tokens_list:
-        if tokens is None:
-            return False
-        return True
+    tokens_list = {
+        'PRACTICUM_TOKEN': PRACTICUM_TOKEN,
+        'TELEGRAM_TOKEN': TELEGRAM_TOKEN,
+        'TELEGRAM_CHAT_ID': TELEGRAM_CHAT_ID,
+    }
+    tokens_status = True
+    for token_name, token in tokens_list.items():
+        if token is None:
+            tokens_status = False
+            logger.critical(
+                f'{error_msg_info.ERROR_NOT_FOUND_TOKEN}{token_name}'
+            )
+    return tokens_status
 
 
 def send_message(bot, message):
@@ -38,9 +44,10 @@ def send_message(bot, message):
     try:
         bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
         logger.info(error_msg_info.SEND_MSG_TG)
-    except Exception:
-        logger.error(error_msg_info.ERROR_SEND_MSG)
-        raise SendMessageError(error_msg_info.ERROR_SEND_MSG)
+    except Exception as error:
+        logger.error(
+            f'{error_msg_info.ERROR_SEND_MSG}{error}'
+        )
     else:
         logger.debug(error_msg_info.SEND_MSG_OK)
 
@@ -49,12 +56,20 @@ def get_api_answer(current_timestamp):
     """Проверка ответа сервера."""
     params = {'from_date': current_timestamp}
     try:
-        response = requests.get(ENDPOINT, headers=HEADERS, params=params)
-    except Exception:
-        raise GetEndpointError(error_msg_info.ERROR_GET_ENDPOINT)
+        response = requests.get(
+            ENDPOINT,
+            headers=HEADERS,
+            params=params
+        )
+    except Exception as error:
+        raise GetEndpointError(
+            f'{error_msg_info.ERROR_GET_ENDPOINT}{error}'
+        )
     if response.status_code != HTTPStatus.OK:
-        raise ResponseError(f'{error_msg_info.ERROR_NOT_200}'
-                            f'{response.status_code}')
+        raise ResponseError(
+            f'{error_msg_info.ERROR_NOT_200}'
+            f'{response.status_code}'
+        )
     return response.json()
 
 
@@ -80,8 +95,10 @@ def parse_status(homework):
     if homework_status not in HOMEWORK_VERDICTS:
         raise KeyError(error_msg_info.ERROR_NOT_VERDICTS_FOR_STATUS)
     verdict = HOMEWORK_VERDICTS[homework_status]
-    return (f'{error_msg_info.STATUS_WOMEWORK_CHANGE}'
-            f'"{homework_name}". {verdict}')
+    return (
+        f'{error_msg_info.STATUS_WOMEWORK_CHANGE}'
+        f'"{homework_name}". {verdict}'
+    )
 
 
 def main():
@@ -106,7 +123,10 @@ def main():
                     send_message(bot, status_update)
                     previous_message = status_update
             logger.debug(error_msg_info.STATUS_WOMEWORK_NOT_CHANGE)
-            current_timestamp = response.get('current_date', current_timestamp)
+            current_timestamp = response.get(
+                'current_date',
+                current_timestamp
+            )
         except Exception as error:
             message = (
                 f'{error_msg_info.ERROR_PROGRAM_FAILURE}{error}'
@@ -122,6 +142,14 @@ def main():
 if __name__ == '__main__':
     logging.basicConfig(
         level=logging.DEBUG,
+        handlers=[
+            logging.StreamHandler(),
+            logging.FileHandler(
+                __file__ + ".log",
+                mode='w',
+                encoding="UTF-8"
+            )
+        ],
         format=(
             '%(asctime)s,'
             '%(levelname)s,'
@@ -130,9 +158,5 @@ if __name__ == '__main__':
             '%(funcName)s,'
             '%(lineno)d,'
         ),
-        filename='main.log',
-        filemode="w",
     )
-    handler = logging.StreamHandler()
-    logger.addHandler(handler)
     main()
