@@ -33,7 +33,7 @@ def check_tokens():
     for token_name, token in tokens_list.items():
         if token is None:
             tokens_status = False
-            logger.critical(
+            logger.error(
                 f'{error_msg_info.ERROR_NOT_FOUND_TOKEN}{token_name}'
             )
     return tokens_status
